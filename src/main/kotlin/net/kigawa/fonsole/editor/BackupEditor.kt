@@ -118,15 +118,46 @@ class BackupEditor(
         return SuccessResult(document)
     }
 
-    suspend fun downloadBackup(backupDocument: BackupDocument): Result<Unit, Unit> {
-        @OptIn(ExperimentalPathApi::class)
-        if (projectConfig.directory.exists())
-            projectConfig.directory.listDirectoryEntries().forEach { it.deleteRecursively() }
+    suspend fun downloadBackup(backupDocument: BackupDocument, targetDirectory: String? = null): Result<Unit, Unit> {
         val root = backupDocument.rootDirectory
         if (root == null) return ErrorResult(Unit)
-        val result = downloadDirectory(root, projectConfig.directory)
-        if (result.await() is ErrorResult) result.cancelAndJoin()
-        return result.await()
+
+        if (targetDirectory != null) {
+            val targetDir = findTargetDirectory(root, targetDirectory)
+            if (targetDir == null) {
+                logger.error("Target directory '$targetDirectory' not found in backup")
+                return ErrorResult(Unit)
+            }
+            val targetPath = projectConfig.directory.resolve(targetDirectory)
+            @OptIn(ExperimentalPathApi::class)
+            if (targetPath.exists())
+                targetPath.deleteRecursively()
+            val result = downloadDirectory(targetDir, targetPath)
+            if (result.await() is ErrorResult) result.cancelAndJoin()
+            return result.await()
+        } else {
+            @OptIn(ExperimentalPathApi::class)
+            if (projectConfig.directory.exists())
+                projectConfig.directory.listDirectoryEntries().forEach { it.deleteRecursively() }
+            val result = downloadDirectory(root, projectConfig.directory)
+            if (result.await() is ErrorResult) result.cancelAndJoin()
+            return result.await()
+        }
+    }
+
+    private fun findTargetDirectory(root: DirectoryModel, targetPath: String): DirectoryModel? {
+        val pathParts = targetPath.split("/").filter { it.isNotEmpty() }
+        return findDirectoryRecursive(root, pathParts)
+    }
+
+    private fun findDirectoryRecursive(current: DirectoryModel, remainingPath: List<String>): DirectoryModel? {
+        if (remainingPath.isEmpty()) return current
+
+        val nextDirName = remainingPath.first()
+        val nextDir = current.subDirectories.find { it.name == nextDirName }
+            ?: return null
+
+        return findDirectoryRecursive(nextDir, remainingPath.drop(1))
     }
 
     private suspend fun downloadDirectory(

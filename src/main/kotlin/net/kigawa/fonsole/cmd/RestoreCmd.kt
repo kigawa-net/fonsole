@@ -20,7 +20,11 @@ class RestoreCmd : CmdBase() {
             val backup = backupEditor.findBackup(config.restoreConfig.restoreDate, backups.result)
             if (backup !is SuccessResult) return@connect
             logger.info("restore backup... ${backup.result.id}")
-            backupEditor.downloadBackup(backup.result)
+            val targetDirectory = config.restoreConfig.targetDirectory
+            if (targetDirectory != null) {
+                logger.info("restoring specific directory: $targetDirectory")
+            }
+            backupEditor.downloadBackup(backup.result, targetDirectory)
         }
     }
 }
