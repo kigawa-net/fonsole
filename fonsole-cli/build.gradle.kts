@@ -2,17 +2,16 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    `java-library`
-//    alias(libs.plugins.dokka).apply(false)
-//    alias(libs.plugins.vanniktech.maven.publish).apply(false)
+    alias(libs.plugins.shadow)
+    application
 }
 repositories {
     mavenCentral()
 }
 dependencies {
-    api(libs.mongodb.driver)
-    api(libs.mongodb.bson)
-    api(libs.kotlinx.coroutines.core)
+    implementation(project(":"))
+    implementation(libs.dotenv)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.logback)
 }
 kotlin {
@@ -20,4 +19,7 @@ kotlin {
     compilerOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
     }
+}
+application {
+    mainClass.set("net.kigawa.fonsole.Main")
 }

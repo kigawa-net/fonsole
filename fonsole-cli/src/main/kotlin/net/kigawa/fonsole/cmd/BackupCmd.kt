@@ -10,7 +10,7 @@ import org.bson.types.ObjectId
 class BackupCmd : CmdBase() {
     private val logger = logger()
     override suspend fun execute() {
-        Client.Companion.connect(config.connectionConfig) {
+        Client.connect(config.connectionConfig) {
             val database = it.database
             logger.info("setup project...")
             val projectEditor = ProjectEditor(database, config.projectConfig)
