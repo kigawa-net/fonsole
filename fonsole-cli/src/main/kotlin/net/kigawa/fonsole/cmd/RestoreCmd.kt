@@ -9,7 +9,7 @@ import net.kigawa.kutil.domain.result.SuccessResult
 class RestoreCmd : CmdBase() {
     private val logger = logger()
     override suspend fun execute() {
-        Client.Companion.connect(config.connectionConfig) {
+        Client.connect(config.connectionConfig) {
             val database = it.database
             logger.info("setup project...")
             val projectEditor = ProjectEditor(database, config.projectConfig)
@@ -20,7 +20,11 @@ class RestoreCmd : CmdBase() {
             val backup = backupEditor.findBackup(config.restoreConfig.restoreDate, backups.result)
             if (backup !is SuccessResult) return@connect
             logger.info("restore backup... ${backup.result.id}")
-            backupEditor.downloadBackup(backup.result)
+            val targetDirectory = config.restoreConfig.targetDirectory
+            if (targetDirectory != null) {
+                logger.info("restoring specific directory: $targetDirectory")
+            }
+            backupEditor.downloadBackup(backup.result, targetDirectory)
         }
     }
 }

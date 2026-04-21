@@ -23,7 +23,7 @@ jobs:
       preDockerBuildCmd: ""
       repository: ""
       manifestFile: ${{ matrix.branch.manifestFile }}
-      dockerFile: Dockerfile
+      dockerFile: fonsole-cli/Dockerfile
       name: ${{ matrix.branch.name }}
       harborUser: "account@kigawa.net"
       dir: "./"

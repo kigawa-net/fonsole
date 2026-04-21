@@ -40,7 +40,8 @@ class EnvironmentConfig {
     }
     val restoreConfig by lazy {
         RestoreConfig(
-            restoreDate = readDateOrToday("RESTORE_DATE")
+            restoreDate = readDateOrToday("RESTORE_DATE"),
+            targetDirectory = readString("RESTORE_TARGET_DIRECTORY", null)
         )
     }
 

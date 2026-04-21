@@ -11,3 +11,4 @@ plugins {
 dependencyResolutionManagement {
 }
 rootProject.name = "fonsole"
+include("fonsole-cli")
