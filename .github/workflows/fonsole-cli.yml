@@ -1,0 +1,23 @@
+
+name: fonsole-cli
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    if: github.ref != 'refs/heads/main'
+    uses: ./.github/workflows/test.yml
+  release:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release.yml
+    with:
+      name: fonsole-cli
+      harborProject: kigawa-net
+      manifestFile: ""
+      repository: ""
+      dockerFile: ./fonsole-cli/Dockerfile
+    secrets:
+      HARBOR_PASS: ${{ secrets.HARBOR_PASS }}
+      GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
